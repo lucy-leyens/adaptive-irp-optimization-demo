@@ -8,15 +8,20 @@ A compact portfolio project demonstrating how **mathematical optimization**, **h
 
 The demo starts from a **precomputed feasible construction solution** and improves its route/visit structure using a reduced sequence-based selection hyper-heuristic (SSHH).
 
-Three experiment variants are provided:
+The recommended diagnostic experiment uses a synthetic clustered 12-customer / 4-period instance and provides three variants:
 
 | Run | Heuristic selection | Quantity reoptimization | Purpose |
 |---|---|---|---|
-| `baseline_lp` | random sequence selection | SCIP LP | transparent baseline |
-| `proposed_lp` | adaptive reward-based selection | SCIP LP | isolate effect of adaptive search |
-| `proposed_mcf` | adaptive reward-based selection | OR-Tools minimum-cost flow | adaptive search + specialized network solver |
+| `random_mcf` | random sequence selection | OR-Tools minimum-cost flow | controller baseline |
+| `adaptive_mcf` | adaptive reward-based selection | OR-Tools minimum-cost flow | isolate the effect of adaptive search |
+| `adaptive_lp` | adaptive reward-based selection | SCIP LP | compare quantity-reoptimization backends |
 
-The run names `proposed_lp` and `proposed_mcf` are simply configuration labels. Both use the **adaptive reward-based controller** described below.
+The adaptive runs use the profile stored in `configs/profiles/proposed.yaml`. The file name is only a configuration label; the controller itself is adaptive and reward-based.
+
+This setup supports two clean comparisons:
+
+- **Random vs. adaptive controller:** `random_mcf` vs. `adaptive_mcf`
+- **SCIP LP vs. OR-Tools MCF:** `adaptive_lp` vs. `adaptive_mcf`
 
 The optimization objective combines route cost and inventory holding cost. The main reported metric is the **best objective value**, together with runtime, number of iterations, feasible/infeasible candidates, accepted moves, and the objective trace over time.
 
@@ -73,71 +78,75 @@ The project uses:
 - NumPy / pandas for experiment logic and reporting,
 - matplotlib for lightweight result plots.
 
-### 2. Run the default comparison
+### 2. Run the recommended controller comparison
+
+```bash
+irp-demo compare --config configs/diagnostic_12x4.yaml --runs random_mcf adaptive_mcf --time-limit 30
+```
+
+This comparison uses the same instance, starting solution, minimum-cost-flow backend, and search budget. The main difference is the controller: random versus adaptive heuristic selection.
+
+### 3. Compare quantity-reoptimization backends
+
+```bash
+irp-demo compare --config configs/diagnostic_12x4.yaml --runs adaptive_lp adaptive_mcf --time-limit 30
+```
+
+This keeps the adaptive search profile fixed while changing the quantity-reoptimization method.
+
+### 4. Run a longer experiment
+
+```bash
+irp-demo compare --config configs/diagnostic_12x4.yaml --runs random_mcf adaptive_mcf --time-limit 1800
+```
+
+`1800` seconds corresponds to a 30-minute search budget **per configured run**.
+
+### 5. Optional small smoke test
+
+The repository also contains a smaller 6-customer / 3-period configuration for a very quick functionality check:
 
 ```bash
 irp-demo compare --config configs/demo.yaml
 ```
 
-or equivalently:
-
-```bash
-python -m irp_demo.cli compare --config configs/demo.yaml
-```
-
-The default configuration is intentionally short so that a reviewer can run it quickly.
-
-### 3. Run a longer experiment
-
-```bash
-irp-demo compare --config configs/demo.yaml --time-limit 1800
-```
-
-`1800` seconds corresponds to a 30-minute search budget **per configured run**.
-
-### 4. Run selected variants only
-
-```bash
-irp-demo compare --config configs/demo.yaml --runs baseline_lp proposed_mcf --time-limit 60
-```
-
 ## Configuration
 
-The central experiment configuration is [`configs/demo.yaml`](configs/demo.yaml).
-
-Example:
+The recommended comparison configuration is [`configs/diagnostic_12x4.yaml`](configs/diagnostic_12x4.yaml):
 
 ```yaml
-instance: data/instances/small_6x3.json
-initial_solution: data/initial_solutions/small_6x3.json
+instance: data/instances/diagnostic_12x4_clustered.json
+initial_solution: data/initial_solutions/diagnostic_12x4_clustered.json
 output_dir: results
 seed: 7
-time_limit_seconds: 60
-max_iterations: 5000
+time_limit_seconds: 30
+max_iterations: 1000000
 
 runs:
-  - name: baseline_lp
-    profile: configs/profiles/random.yaml
-    quantity_solver: scip_lp
+  - name: random_mcf
+    profile: configs/profiles/random_matched.yaml
+    quantity_solver: ortools_mcf
 
-  - name: proposed_lp
-    profile: configs/profiles/proposed.yaml
-    quantity_solver: scip_lp
-
-  - name: proposed_mcf
+  - name: adaptive_mcf
     profile: configs/profiles/proposed.yaml
     quantity_solver: ortools_mcf
+
+  - name: adaptive_lp
+    profile: configs/profiles/proposed.yaml
+    quantity_solver: scip_lp
 ```
 
-The **search profile** and the **quantity solver** are independent configuration choices. This makes it easy to distinguish algorithmic effects from solver effects.
+The **search controller** and the **quantity solver** are independent configuration choices. This makes it possible to distinguish controller effects from solver effects.
 
 ## Random vs. adaptive profile
 
 ### Random profile
 
-The baseline selects low-level heuristics uniformly at random and uses a simple non-worsening acceptance rule.
+The random controller selects low-level heuristics without adapting its selection probabilities based on previous search outcomes.
 
-### Proposed adaptive profile
+For the diagnostic comparison, `random_matched.yaml` uses matched search settings so that the controller itself is the main experimental difference.
+
+### Adaptive profile
 
 The adaptive controller maintains:
 
@@ -147,7 +156,7 @@ The adaptive controller maintains:
 
 Successful heuristic sequences therefore become more likely to be sampled again. This is intentionally described as **reward-based adaptive / reinforcement-learning-inspired selection**, rather than as a full reinforcement-learning implementation.
 
-The public demo uses a smaller operator portfolio than the full thesis implementation.
+The adaptive configuration is stored in [`configs/profiles/proposed.yaml`](configs/profiles/proposed.yaml). The public demo uses a smaller operator portfolio than the full thesis implementation.
 
 ## LP vs. minimum-cost flow
 
@@ -178,24 +187,12 @@ results/<run_name>_summary.json
 results/<run_name>_trace.csv
 ```
 
-The console prints a compact summary containing:
+The console prints a compact summary containing the initial and best objective values, improvement, iteration counts, candidate statistics, and runtime.
 
-```text
-Run
-Initial objective
-Best objective
-Improvement
-Iterations
-Feasible candidates
-Infeasible candidates
-Accepted candidates
-Runtime
-```
-
-Plot a trace with:
+For example, after running `adaptive_mcf`, plot its objective trace with:
 
 ```bash
-python -m irp_demo.visualization.plot_trace results/proposed_mcf_trace.csv
+python -m irp_demo.visualization.plot_trace results/adaptive_mcf_trace.csv
 ```
 
 The trace shows how the best objective value evolves during the search.
@@ -205,6 +202,8 @@ The trace shows how the best objective value evolves during the search.
 The repository contains small **synthetic demonstration instances** and matching saved starting route structures. They are not proprietary benchmark or Fraunhofer project data.
 
 The starting solution files represent the output of a construction phase. Keeping construction separate makes comparisons between search profiles reproducible: each method starts from exactly the same route structure.
+
+The diagnostic 12-customer instance is intentionally clustered so that there are meaningful opportunities for route restructuring while the example remains small enough to inspect.
 
 ## Visualization
 
@@ -221,8 +220,8 @@ If you only have a few minutes:
 1. Read this README.
 2. Look at [`src/irp_demo/controller/adaptive.py`](src/irp_demo/controller/adaptive.py).
 3. Compare [`src/irp_demo/optimization/scip_lp.py`](src/irp_demo/optimization/scip_lp.py) with [`src/irp_demo/optimization/ortools_mcf.py`](src/irp_demo/optimization/ortools_mcf.py).
-4. Run `irp-demo compare --config configs/demo.yaml --time-limit 30`.
-5. Inspect the generated objective traces and summaries.
+4. Run `irp-demo compare --config configs/diagnostic_12x4.yaml --runs random_mcf adaptive_mcf --time-limit 30`.
+5. Inspect the generated objective traces and summary files.
 
 ## Scope
 
