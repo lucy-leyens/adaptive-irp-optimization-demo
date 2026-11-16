@@ -1,0 +1,15 @@
+name: proposed
+controller: adaptive
+max_sequence_length: 5
+initial_transition_score: 1.0
+initial_stop_score: 1.0
+initial_continue_score: 1.0
+transition_learning_rate: 0.5
+termination_learning_rate: 0.25
+reward:
+  global_best: 3.0
+  current_improvement: 1.0
+acceptance:
+  type: best_relative_threshold
+  threshold_start: 0.01
+  threshold_end: 0.0001

@@ -1,0 +1,19 @@
+instance: data/instances/diagnostic_12x4_clustered.json
+initial_solution: data/initial_solutions/diagnostic_12x4_clustered.json
+output_dir: results
+seed: 7
+time_limit_seconds: 30
+max_iterations: 1000000
+
+runs:
+  - name: random_mcf
+    profile: configs/profiles/random_matched.yaml
+    quantity_solver: ortools_mcf
+
+  - name: adaptive_mcf
+    profile: configs/profiles/proposed.yaml
+    quantity_solver: ortools_mcf
+
+  - name: adaptive_lp
+    profile: configs/profiles/proposed.yaml
+    quantity_solver: scip_lp

@@ -1,0 +1,2 @@
+[console_scripts]
+irp-demo = irp_demo.cli:main

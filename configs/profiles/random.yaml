@@ -1,0 +1,5 @@
+name: random
+controller: random
+max_sequence_length: 3
+acceptance:
+  type: non_worsening

@@ -1,0 +1,7 @@
+name: random_matched
+controller: random
+max_sequence_length: 5
+acceptance:
+  type: best_relative_threshold
+  threshold_start: 0.01
+  threshold_end: 0.0001

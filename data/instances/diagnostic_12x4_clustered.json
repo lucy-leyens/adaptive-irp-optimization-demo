@@ -1,0 +1,26 @@
+{
+  "name": "diagnostic_12x4_clustered",
+  "periods": 4,
+  "fleet_size": 3,
+  "vehicle_capacity": 10,
+  "depot": {"x": 0.0, "y": 0.0},
+  "supplier_initial_inventory": 0,
+  "production": [24, 24, 24, 24],
+  "supplier_holding_cost": 0.1,
+  "customers": [
+    {"id": 1,  "x": 2.0,  "y": 9.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.8, "demand": [2, 2, 2, 2]},
+    {"id": 2,  "x": 3.0,  "y": 10.0, "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.9, "demand": [2, 2, 2, 2]},
+    {"id": 3,  "x": 4.0,  "y": 9.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.7, "demand": [2, 2, 2, 2]},
+    {"id": 4,  "x": 3.0,  "y": 8.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.8, "demand": [2, 2, 2, 2]},
+
+    {"id": 5,  "x": 9.0,  "y": 2.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.8, "demand": [2, 2, 2, 2]},
+    {"id": 6,  "x": 10.0, "y": 3.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.9, "demand": [2, 2, 2, 2]},
+    {"id": 7,  "x": 9.0,  "y": 4.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.7, "demand": [2, 2, 2, 2]},
+    {"id": 8,  "x": 8.0,  "y": 3.0,  "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.8, "demand": [2, 2, 2, 2]},
+
+    {"id": 9,  "x": -5.0, "y": -5.0, "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.8, "demand": [2, 2, 2, 2]},
+    {"id": 10, "x": -6.0, "y": -4.0, "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.9, "demand": [2, 2, 2, 2]},
+    {"id": 11, "x": -4.0, "y": -6.0, "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.7, "demand": [2, 2, 2, 2]},
+    {"id": 12, "x": -5.0, "y": -3.0, "initial_inventory": 0, "min_inventory": 0, "max_inventory": 3, "holding_cost": 0.8, "demand": [2, 2, 2, 2]}
+  ]
+}
