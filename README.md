@@ -16,6 +16,8 @@ Three experiment variants are provided:
 | `proposed_lp` | adaptive reward-based selection | SCIP LP | isolate effect of adaptive search |
 | `proposed_mcf` | adaptive reward-based selection | OR-Tools minimum-cost flow | adaptive search + specialized network solver |
 
+The run names `proposed_lp` and `proposed_mcf` are simply configuration labels. Both use the **adaptive reward-based controller** described below.
+
 The optimization objective combines route cost and inventory holding cost. The main reported metric is the **best objective value**, together with runtime, number of iterations, feasible/infeasible candidates, accepted moves, and the objective trace over time.
 
 ## Architecture
@@ -96,10 +98,7 @@ irp-demo compare --config configs/demo.yaml --time-limit 1800
 ### 4. Run selected variants only
 
 ```bash
-irp-demo compare \
-  --config configs/demo.yaml \
-  --runs baseline_lp proposed_mcf \
-  --time-limit 60
+irp-demo compare --config configs/demo.yaml --runs baseline_lp proposed_mcf --time-limit 60
 ```
 
 ## Configuration
@@ -111,6 +110,7 @@ Example:
 ```yaml
 instance: data/instances/small_6x3.json
 initial_solution: data/initial_solutions/small_6x3.json
+output_dir: results
 seed: 7
 time_limit_seconds: 60
 max_iterations: 5000
@@ -145,7 +145,7 @@ The adaptive controller maintains:
 - stop/continue scores controlling sequence length,
 - reward updates based on observed solution improvements.
 
-Successful heuristic sequences therefore become more likely to be sampled again. This is intentionally described as **reward-based adaptive / reinforcement-learning-inspired selection**, rather than as a full RL implementation.
+Successful heuristic sequences therefore become more likely to be sampled again. This is intentionally described as **reward-based adaptive / reinforcement-learning-inspired selection**, rather than as a full reinforcement-learning implementation.
 
 The public demo uses a smaller operator portfolio than the full thesis implementation.
 
@@ -178,17 +178,18 @@ results/<run_name>_summary.json
 results/<run_name>_trace.csv
 ```
 
-The console prints a compact summary such as:
+The console prints a compact summary containing:
 
 ```text
-Run: proposed_mcf
-Best objective:       412.73
-Initial objective:    487.90
-Improvement:           15.41 %
-Iterations:              2841
-Feasible candidates:     2360
-Accepted candidates:      417
-Runtime:                60.0 s
+Run
+Initial objective
+Best objective
+Improvement
+Iterations
+Feasible candidates
+Infeasible candidates
+Accepted candidates
+Runtime
 ```
 
 Plot a trace with:
@@ -197,17 +198,21 @@ Plot a trace with:
 python -m irp_demo.visualization.plot_trace results/proposed_mcf_trace.csv
 ```
 
+The trace shows how the best objective value evolves during the search.
+
 ## Instances and starting solutions
 
 The repository contains small **synthetic demonstration instances** and matching saved starting route structures. They are not proprietary benchmark or Fraunhofer project data.
 
 The starting solution files represent the output of a construction phase. Keeping construction separate makes comparisons between search profiles reproducible: each method starts from exactly the same route structure.
 
-## Visualization / animation
+## Visualization
 
-The public repository intentionally contains only a simple objective-trace plot and leaves a clean visualization hook for route-level output.
+The public repository currently contains a lightweight **objective-trace plot** based on the generated CSV trace files.
 
-The original animation tooling developed in the Fraunhofer research context is **not included** here. If a route animation is added later, it should either be independently reimplemented for this portfolio repository or shared separately with appropriate permission and attribution.
+Its purpose is to make the search process easy to inspect: a reviewer can see when improvements occur and how the best-known objective evolves over the available search time.
+
+The original animation tooling developed in the Fraunhofer research context is **not included** here.
 
 ## Suggested reviewer path
 
