@@ -20,4 +20,4 @@ Compare:
 
 Both use the same quantity solver, maximum sequence length, threshold-acceptance rule, instance, and time limit. The intended difference is therefore the sequence-selection mechanism.
 
-Do **not** present this instance as evidence that the adaptive method is universally superior. It is intended to make the learning mechanism observable. Final portfolio claims should be based on multiple seeds and preferably additional instances.
+Do **not** present this instance as evidence that the adaptive method is universally superior (or inferior). It is intended to make the learning mechanism observable. Final portfolio claims should be based on multiple seeds and preferably additional instances.
